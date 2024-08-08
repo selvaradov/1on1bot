@@ -28,10 +28,9 @@ let guild;
 let serverid = "YOUR_SERVER_ID";
 let channelid = "YOUR_CHANNEL_ID";
 let adminid = "YOUR_USER_ID"; 
-let prefix = ""; // to distinguish files in case you have multiple instances of the bot running
 
 // Call init_db() if data.txt does not exist
-if (!fs.existsSync(prefix + "data.txt")) {
+if (!fs.existsSync("data.txt")) {
   init_db();
 }
 load_data();
@@ -56,12 +55,11 @@ client.on("ready", async () => {
     {
       name: "change-frequency",
       description: "Change your meeting frequency to once every [period] week.",
-      type: 1,
       options: [
         {
           name: "period",
           description: "The number of weeks between successive meetings.",
-          type: 2,
+          type: 4,
           required: true,
         },
       ],
@@ -74,7 +72,7 @@ client.on("ready", async () => {
         {
           name: "tag",
           description: "Discord tag of the preferred partner, starting with @.",
-          type: 1,
+          type: 3,
           required: true,
         },
       ],
@@ -88,7 +86,7 @@ client.on("ready", async () => {
         {
           name: "tag",
           description: "Discord tag of the previous partner, starting with @.",
-          type: 1,
+          type: 3,
           required: true,
         },
       ],
@@ -130,7 +128,7 @@ client.on("ready", async () => {
         {
           name: "tag",
           description: "Discord tag of the user being kicked, starting with @.",
-          type: 1,
+          type: 3,
           required: true,
         },
       ],
@@ -177,17 +175,17 @@ client.on("interactionCreate", async (interaction) => {
         ephemeral: true,
         components: [
           {
-            type: "ACTION_ROW",
+            type: 1, // ACTION_ROW
             components: [
               {
-                type: "BUTTON",
-                style: "DANGER",
+                type: 2, // BUTTON
+                style: 4, // DANGER
                 label: "Yes",
                 customId: "confirm",
               },
               {
-                type: "BUTTON",
-                style: "SECONDARY",
+                type: 2, // BUTTON
+                style: 2, // SECONDARY
                 label: "No",
                 customId: "cancel",
               },
@@ -195,7 +193,7 @@ client.on("interactionCreate", async (interaction) => {
           },
         ],
       });
-
+  
       const collector = interaction.channel.createMessageComponentCollector({
         time: 15000,
       });
@@ -479,17 +477,17 @@ client.on("interactionCreate", async (interaction) => {
             ephemeral: true,
             components: [
               {
-                type: "ACTION_ROW",
+                type: 1, // ACTION_ROW
                 components: [
                   {
-                    type: "BUTTON",
-                    style: "DANGER",
+                    type: 2, // BUTTON
+                    style: 4, // DANGER
                     label: "Yes",
                     customId: "confirm",
                   },
                   {
-                    type: "BUTTON",
-                    style: "SECONDARY",
+                    type: 2, // BUTTON
+                    style: 2, // SECONDARY
                     label: "No",
                     customId: "cancel",
                   },
@@ -497,7 +495,7 @@ client.on("interactionCreate", async (interaction) => {
               },
             ],
           });
-
+          
           const collector = interaction.channel.createMessageComponentCollector(
             {
               time: 15000,
@@ -721,26 +719,26 @@ async function debug(interaction) {
 // most genius DBMS ik
 
 function init_db() {
-  fs.writeFileSync(prefix + "data.txt", "0");
-  fs.writeFileSync(prefix + "current.txt", "");
-  fs.writeFileSync(prefix + "prefer.txt", "");
-  fs.writeFileSync(prefix + "previous.txt", "");
-  fs.writeFileSync(prefix + "unpaired.txt", "");
-  fs.writeFileSync(prefix + "people.txt", "");
+  fs.writeFileSync("data.txt", "0");
+  fs.writeFileSync("current.txt", "");
+  fs.writeFileSync("prefer.txt", "");
+  fs.writeFileSync("previous.txt", "");
+  fs.writeFileSync("unpaired.txt", "");
+  fs.writeFileSync("people.txt", "");
   console.log("Database initialized successfully.");
 }
 
 function load_data() {
   // Read data.txt and store its value to week
-  week = parseInt(fs.readFileSync(prefix + "data.txt", "utf8").trim());
+  week = parseInt(fs.readFileSync("data.txt", "utf8").trim());
 
   // Read unpaired.txt and store its values to an array, unpaired
-  const unpairedData = fs.readFileSync(prefix + "unpaired.txt", "utf8").trim();
+  const unpairedData = fs.readFileSync("unpaired.txt", "utf8").trim();
   unpaired = unpairedData ? unpairedData.split("\n") : [];
 
   // Read people.txt
   people = fs
-    .readFileSync(prefix + "people.txt", "utf8")
+    .readFileSync("people.txt", "utf8")
     .split("\n")
     .map((line) => {
       const [userId, frequency, is_opted] = line
@@ -752,20 +750,20 @@ function load_data() {
     .filter(([userId, frequency, is_opted]) => userId !== "");
 
   // Read current.txt and store its values to a 2d array, current_pairs
-  const currentData = fs.readFileSync(prefix + "current.txt", "utf8").trim();
+  const currentData = fs.readFileSync("current.txt", "utf8").trim();
   current_pairs = currentData
     ? currentData.split("\n").map((pair) => pair.split(","))
     : [];
 
   // Read prefer.txt and store its values to a 2d array, preferred_pairs
-  const preferData = fs.readFileSync(prefix + "prefer.txt", "utf8").trim();
+  const preferData = fs.readFileSync("prefer.txt", "utf8").trim();
   preferred_pairs = preferData
     ? preferData.split("\n").map((pair) => pair.split(","))
     : [];
 
   // Read previous.txt and store its values to a dictionary, previous_pairs
   const previousData = fs
-    .readFileSync(prefix + "previous.txt", "utf8")
+    .readFileSync("previous.txt", "utf8")
     .trim()
     .split("\n");
   previous_pairs = {};
@@ -783,12 +781,12 @@ function load_data() {
 }
 
 function save_week() {
-  fs.writeFileSync(prefix + "data.txt", week.toString());
+  fs.writeFileSync("data.txt", week.toString());
 }
 
 function save_unpaired() {
   const data = unpaired.join("\n");
-  fs.writeFileSync(prefix + "unpaired.txt", data);
+  fs.writeFileSync("unpaired.txt", data);
 }
 
 function save_people() {
@@ -796,17 +794,17 @@ function save_people() {
   const peopleData = people
     .map(([userId, frequency, is_opted]) => `${userId}, ${frequency}, ${is_opted}`)
     .join("\n");
-  fs.writeFileSync(prefix + "people.txt", peopleData, "utf8");
+  fs.writeFileSync("people.txt", peopleData, "utf8");
 }
 
 function save_current_pairs() {
   const data = current_pairs.map((pair) => pair.join(",")).join("\n");
-  fs.writeFileSync(prefix + "current.txt", data);
+  fs.writeFileSync("current.txt", data);
 }
 
 function save_preferred_pairs() {
   const data = preferred_pairs.map((pair) => pair.join(",")).join("\n");
-  fs.writeFileSync(prefix + "prefer.txt", data);
+  fs.writeFileSync("prefer.txt", data);
 }
 
 function save_previous_pairs() {
@@ -815,7 +813,7 @@ function save_previous_pairs() {
     data += key + "," + previous_pairs[key].join(",") + "\n";
   }
   // console.log(data);
-  fs.writeFileSync(prefix + "previous.txt", data);
+  fs.writeFileSync("previous.txt", data);
 }
 
 function shuffleArray(array) {
@@ -917,33 +915,52 @@ async function reminder() {
 }
 
 async function optoutmessage() {
+  // Set everyone to 1 initially
   for (let i = 0; i < people.length; i++) {
     people[i][2] = 1;
   }
+
   const channel = client.channels.cache.get(channelid);
   const optoutMessage = await channel.send("React to this message with ❌ to opt out of pairings this week!");
   await optoutMessage.react("❌");
+
   const filter = (reaction, user) => reaction.emoji.name === '❌' && !user.bot;
+  
   const collector = optoutMessage.createReactionCollector({
     filter,
-    time: 86400000,
+    time: 172800000,
+    dispose: true,
   });
-  
+
+  // When a reaction is added
   collector.on('collect', (reaction, user) => {
-    console.log("collected a reaction here");
+    // console.log("collected a reaction here");
     for (let i = 0; i < people.length; i++) {
       if (people[i][0] === user.id) {
-        people[i][2] = 0;
+        people[i][2] = 0; // Opt out the user
         break;
       }
     }
+    save_people();
   });
-  
+
+  // When a reaction is removed
+  client.on('messageReactionRemove', async (reaction, user) => {
+    if (reaction.message.id === optoutMessage.id && reaction.emoji.name === '❌' && !user.bot) {
+      // console.log("removed a reaction here");
+      for (let i = 0; i < people.length; i++) {
+        if (people[i][0] === user.id) {
+          people[i][2] = 1; // Opt the user back in
+          break;
+        }
+      }
+      save_people();
+    }
+  });
+
   collector.on('end', (collected, reason) => {
     // could potentially ping everyone who opted out here but i cant be bothered right now oops
   });
-  
-  save_people()
 }
 
 const cron = require("node-cron");
@@ -972,7 +989,7 @@ const job2 = cron.schedule(
 
 // send the optout
 const job3 = cron.schedule(
-  "0 0 * * 7",
+  "0 0 * * 6",
   async () => {
     await optoutmessage();
   },
