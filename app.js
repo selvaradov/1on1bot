@@ -4,7 +4,7 @@ const client = new Client({
 });
 const fs = require("fs");
 /*data structure
-people : array of [user id, meeting frequency]
+people : array of [user id, meeting frequency, is opted in?]
 week : int
 current : array of [user id, user id]
 prefer : array of [user id, user id]
@@ -19,7 +19,6 @@ let preferred_pairs = [];
 let people = [];
 let week = 0;
 let guild;
-let optouts = [];
 
 let serverid = "YOUR_SERVER_ID";
 let channelid = "YOUR_CHANNEL_ID";
@@ -597,7 +596,7 @@ client.on("interactionCreate", async (interaction) => {
     // joining 1-1
     if (commandName === "join") {
       // update the people array in the db
-      people.push([interaction.user.id, 1]);
+      people.push([interaction.user.id, 1, true]);
       save_people();
 
       // create a new dictionary entry if it doesn't already exists to store this user's previous_pairs
@@ -722,13 +721,13 @@ function load_data() {
     .readFileSync(prefix + "people.txt", "utf8")
     .split("\n")
     .map((line) => {
-      const [userId, frequency] = line
+      const [userId, frequency, is_opted] = line
         .trim()
         .split(",")
         .map((str) => str.trim());
-      return [userId, parseInt(frequency)];
+      return [userId, parseInt(frequency), parseInt(is_opted)];
     })
-    .filter(([userId, frequency]) => userId !== "");
+    .filter(([userId, frequency, is_opted]) => userId !== "");
 
   // Read current.txt and store its values to a 2d array, current_pairs
   const currentData = fs.readFileSync(prefix + "current.txt", "utf8").trim();
@@ -773,7 +772,7 @@ function save_unpaired() {
 function save_people() {
   // Write people to people.txt
   const peopleData = people
-    .map(([userId, frequency]) => `${userId}, ${frequency}`)
+    .map(([userId, frequency, is_opted]) => `${userId}, ${frequency}, ${is_opted}`)
     .join("\n");
   fs.writeFileSync(prefix + "people.txt", peopleData, "utf8");
 }
@@ -813,7 +812,8 @@ async function init_week() {
   unpaired = [];
   for (var i = 0; i < people.length; i++) {
     if (week % people[i][1] === 0) {
-      unpaired.push(people[i][0]);
+      if (people[i][2])
+        unpaired.push(people[i][0]);
     }
   }
   // shuffle the array for the sake of randomness
@@ -954,10 +954,8 @@ async function reminder() {
 }
 
 async function optoutmessage() {
-  for (let i = 0; i < optouts.length; i++) {
-    people.push(optouts[i]);
-    outputs.splice(i, 1);
-    i--;
+  for (let i = 0; i < people.length; i++) {
+    people[i][2] = 1;
   }
   
   const channel = await client.channels.cache.get(channelid);
@@ -972,9 +970,7 @@ async function optoutmessage() {
   collector.on('collect', (reaction, user) => {
     for (let i = 0; i < people.length; i++) {
       if (people[i][0] == interaction.user.id) {
-        optouts.push(people[i]);
-        people.splice(i, 1);
-        i--;
+        people[i][2] = 0;
         break;
       }
     }
