@@ -3,9 +3,9 @@ A discord bot that pairs up users within a server for weekly 1-1 calls.
 Used by Atlas Fellows and SPARC2024 attendees. 
 ## Installation
 1. Create an application on [Discord Developer Portal](https://discord.com/developers/applications). Invite it to your server with the permission to use applications.commands, manage roles, send messages and ping members.
-2. Select or create a channel in your server for the bot to send messages to. 
-3. Download app.js. Change serverid, channelid, adminid, and prefix to suitable values.
-4. Upload app.js onto a web server and run it. Set the environmental value TOKEN to your bot's token. I'm currently using a DigitalOcean droplet, monitored by pm2.
+2. Select or create a channel in your server for the bot to send messages to. Create a role named 1-1 and make sure it is below the bot's role. 
+3. Download app.js. Change serverid, channelid, and adminid to suitable values. Set the environmental value TOKEN to your bot's token. 
+4. If you are running multiple instances of the bot, create a separate folder for each instance. 
 ## Functions
 1. **/join:** add the user to the 1-1 program.
 2. **/leave:** remove the user from the 1-1 program, while retaining a copy of their 10 most recent partners.
@@ -17,6 +17,7 @@ Used by Atlas Fellows and SPARC2024 attendees.
 8. **/pair:** admin function; manually run the pairing function; normally done automatically every Monday.
 9. **/debug:** admin function; return the values of the program's arrays.
 10. **/kick:** admin function; remove another user from the 1-1 program.  
+11. **optout:** send a message 48 hours in advance, which allows users to opt-out for a week by reacting to it. 
 ## FAQ
 #### Q: Why are you using txt files to store your data?
 A: This is an ✨intentional feature✨ so you don't have to waste time and money setting up a database.
