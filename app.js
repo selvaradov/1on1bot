@@ -1,7 +1,12 @@
-const { Client, Intents } = require("discord.js");
+const { Client, GatewayIntentBits } = require("discord.js");
 const client = new Client({
-  intents: [Intents.FLAGS.GUILDS, "GUILD_MESSAGES"],
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildMessageReactions,
+  ],
 });
+
 const fs = require("fs");
 /*data structure
 people : array of [user id, meeting frequency, is opted in?]
@@ -31,6 +36,11 @@ if (!fs.existsSync(prefix + "data.txt")) {
 }
 load_data();
 
+client.on('error', (err) => {
+  console.log(err.message)
+});
+
+
 client.on("ready", async () => {
   // command declarations
   guild = client.guilds.cache.get(serverid);
@@ -46,11 +56,12 @@ client.on("ready", async () => {
     {
       name: "change-frequency",
       description: "Change your meeting frequency to once every [period] week.",
+      type: 1,
       options: [
         {
           name: "period",
           description: "The number of weeks between successive meetings.",
-          type: "INTEGER",
+          type: 2,
           required: true,
         },
       ],
@@ -58,11 +69,12 @@ client.on("ready", async () => {
     {
       name: "add-preferred-partner",
       description: "Suggest a person you would like to meet.",
+      type: 1,
       options: [
         {
           name: "tag",
           description: "Discord tag of the preferred partner, starting with @.",
-          type: "STRING",
+          type: 1,
           required: true,
         },
       ],
@@ -71,11 +83,12 @@ client.on("ready", async () => {
       name: "add-previous-partner",
       description:
         "Manually enter into record a person you have recently met with.",
+      type: 1,
       options: [
         {
           name: "tag",
           description: "Discord tag of the previous partner, starting with @.",
-          type: "STRING",
+          type: 1,
           required: true,
         },
       ],
@@ -94,6 +107,10 @@ client.on("ready", async () => {
       description: "Manually run the pairing function.",
     },
     // {
+    //   name: "optout",
+    //   description: "Test the message for opting out.",
+    // },
+    // {
     //   name: 'feedback',
     //   description: 'Test the feedback function.',
     // },
@@ -108,11 +125,12 @@ client.on("ready", async () => {
     {
       name: "kick",
       description: "Kick the specified user.",
+      type: 1,
       options: [
         {
           name: "tag",
           description: "Discord tag of the user being kicked, starting with @.",
-          type: "STRING",
+          type: 1,
           required: true,
         },
       ],
@@ -183,7 +201,7 @@ client.on("interactionCreate", async (interaction) => {
       });
 
       collector.on("collect", async (i) => {
-        if (i.customId == "confirm") {
+        if (i.customId === "confirm") {
           await interaction.member.roles.remove(role);
           // remove user from people
           for (let j = 0; j < people.length; j++) {
@@ -246,7 +264,7 @@ client.on("interactionCreate", async (interaction) => {
               components: [],
             })
             .catch(console.error);
-        } else if (i.customId == "cancel") {
+        } else if (i.customId === "cancel") {
           await i
             .update({ content: `Leaving cancelled`, components: [] })
             .catch(console.error);
@@ -487,7 +505,7 @@ client.on("interactionCreate", async (interaction) => {
           );
 
           collector.on("collect", async (i) => {
-            if (i.customId == "confirm") {
+            if (i.customId === "confirm") {
               // remove the 1-1 role from the user
               const member = guild.members.cache.get(tag);
               if (member) {
@@ -567,7 +585,7 @@ client.on("interactionCreate", async (interaction) => {
                   .update({ content: `User not found`, components: [] })
                   .catch(console.error);
               }
-            } else if (i.customId == "cancel") {
+            } else if (i.customId === "cancel") {
               await i
                 .update({ content: `Kicking cancelled`, components: [] })
                 .catch(console.error);
@@ -581,6 +599,10 @@ client.on("interactionCreate", async (interaction) => {
         });
       }
     }
+    // if (commandName === 'optout') {
+    //   await optoutmessage();
+    //   await interaction.reply({content: `I sent the message. Try it out!`, ephemeral: true}); 
+    // }
     // if (commandName === 'feedback') {
     //   await feedback();
     //   await interaction.reply({content: `I've sent everyone a feedback form!`, ephemeral: true});
@@ -596,7 +618,7 @@ client.on("interactionCreate", async (interaction) => {
     // joining 1-1
     if (commandName === "join") {
       // update the people array in the db
-      people.push([interaction.user.id, 1, true]);
+      people.push([interaction.user.id, 1, 1]);
       save_people();
 
       // create a new dictionary entry if it doesn't already exists to store this user's previous_pairs
@@ -811,9 +833,11 @@ async function init_week() {
   // create a list of users that are waiting to be paired
   unpaired = [];
   for (var i = 0; i < people.length; i++) {
-    if (week % people[i][1] === 0) {
-      if (people[i][2])
+    if (week % people[i][1] === 0 && people[i][2] === 1) {
+      // check if user opted-in
+      if (people[i][2] === 1) {
         unpaired.push(people[i][0]);
+      }
     }
   }
   // shuffle the array for the sake of randomness
@@ -879,67 +903,6 @@ async function pairing() {
   }
 }
 
-// async function feedback() {
-//   let last_pairs = current_pairs;
-//   for (let i = 0; i < current_pairs.length; i++) {
-//     const user1 = await client.users.fetch(last_pairs[i][0]);
-//     const user2 = await client.users.fetch(last_pairs[i][1]);
-
-//     await user1.send({
-//         content: `How was your meeting with ${user2.username}?
-//                   1: We met up and I enjoyed it
-//                   2: We met up but I didn't enjoy it
-//                   3: We scheduled a meeting but we haven't met up
-//                   4: I didn't want to / reply / attend
-//                   5: My partner didn't want to / reply / attend`,
-//       ephemeral: true,
-//         components: [
-//             {
-//                 type: 'ACTION_ROW',
-//                 components: [
-//                     {
-//                         type: 'BUTTON',
-//                         style: 'PRIMARY',
-//                         label: '1',
-//                         customId: '1',
-//                     },
-//                     {
-//                         type: 'BUTTON',
-//                         style: 'PRIMARY',
-//                         label: '2',
-//                         customId: '2',
-//                     },
-//                   {
-//                       type: 'BUTTON',
-//                       style: 'PRIMARY',
-//                       label: '3',
-//                       customId: '3',
-//                   },
-//                   {
-//                       type: 'BUTTON',
-//                       style: 'PRIMARY',
-//                       label: '4',
-//                       customId: '4',
-//                   },
-//                   {
-//                       type: 'BUTTON',
-//                       style: 'PRIMARY',
-//                       label: '5',
-//                       customId: '5',
-//                   },
-//                 ],
-//             },
-//         ],
-//     });
-
-//     const collector = user1.createMessageComponentCollector();
-
-//     collector.on('collect', async i => {
-//       await i.update({ content: `Thank you for your feedback!`, components: []}).catch(console.error);
-//     });
-//   }
-// }
-
 async function reminder() {
   for (let i = 0; i < current_pairs.length; i++) {
     const user1 = await client.users.fetch(current_pairs[i][0]);
@@ -957,19 +920,19 @@ async function optoutmessage() {
   for (let i = 0; i < people.length; i++) {
     people[i][2] = 1;
   }
-  
-  const channel = await client.channels.cache.get(channelid);
+  const channel = client.channels.cache.get(channelid);
   const optoutMessage = await channel.send("React to this message with ❌ to opt out of pairings this week!");
   await optoutMessage.react("❌");
   const filter = (reaction, user) => reaction.emoji.name === '❌' && !user.bot;
   const collector = optoutMessage.createReactionCollector({
     filter,
-    time: 86400,
+    time: 86400000,
   });
   
   collector.on('collect', (reaction, user) => {
+    console.log("collected a reaction here");
     for (let i = 0; i < people.length; i++) {
-      if (people[i][0] == interaction.user.id) {
+      if (people[i][0] === user.id) {
         people[i][2] = 0;
         break;
       }
@@ -979,6 +942,8 @@ async function optoutmessage() {
   collector.on('end', (collected, reason) => {
     // could potentially ping everyone who opted out here but i cant be bothered right now oops
   });
+  
+  save_people()
 }
 
 const cron = require("node-cron");
