@@ -19,6 +19,7 @@ let preferred_pairs = [];
 let people = [];
 let week = 0;
 let guild;
+let optouts = [];
 
 let serverid = "YOUR_SERVER_ID";
 let channelid = "YOUR_CHANNEL_ID";
@@ -952,6 +953,38 @@ async function reminder() {
   }
 }
 
+async function optoutmessage() {
+  for (let i = 0; i < optouts.length; i++) {
+    people.push(optouts[i]);
+    outputs.splice(i, 1);
+    i--;
+  }
+  
+  const channel = await client.channels.cache.get(channelid);
+  const optoutMessage = await channel.send("React to this message with ❌ to opt out of pairings this week!");
+  await optoutMessage.react("❌");
+  const filter = (reaction, user) => reaction.emoji.name === '❌' && !user.bot;
+  const collector = optoutMessage.createReactionCollector({
+    filter,
+    time: 86400,
+  });
+  
+  collector.on('collect', (reaction, user) => {
+    for (let i = 0; i < people.length; i++) {
+      if (people[i][0] == interaction.user.id) {
+        optouts.push(people[i]);
+        people.splice(i, 1);
+        i--;
+        break;
+      }
+    }
+  });
+  
+  collector.on('end', (collected, reason) => {
+    // could potentially ping everyone who opted out here but i cant be bothered right now oops
+  });
+}
+
 const cron = require("node-cron");
 // generate the weekly pairing
 const job1 = cron.schedule(
@@ -970,6 +1003,17 @@ const job2 = cron.schedule(
   "0 0 * * 6",
   async () => {
     await reminder();
+  },
+  {
+    timezone: "UTC",
+  }
+);
+
+// send the optout
+const job3 = cron.schedule(
+  "0 0 * * 7",
+  async () => {
+    await optoutmessage();
   },
   {
     timezone: "UTC",
