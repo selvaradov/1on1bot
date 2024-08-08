@@ -1,0 +1,16 @@
+{
+  "name": "1on1-Bot",
+  "version": "1.1.0",
+  "description": "Pair up Discord users for 1-1 calls",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "Brian Zhao",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^14.15.3",
+    "node-cron": "^3.0.0"
+  }
+}
+
