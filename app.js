@@ -104,18 +104,18 @@ client.on("ready", async () => {
       name: "pair",
       description: "Manually run the pairing function.",
     },
-    // {
-    //   name: "optout",
-    //   description: "Test the message for opting out.",
-    // },
+    {
+      name: "optout",
+      description: "Test the message for opting out.",
+    },
     // {
     //   name: 'feedback',
     //   description: 'Test the feedback function.',
     // },
-    // {
-    //   name: "reminder",
-    //   description: "Test the reminder function.",
-    // },
+    {
+      name: "reminder",
+      description: "Test the reminder function.",
+    },
     {
       name: "debug",
       description: "Output all the arrays as a reply.",
@@ -447,9 +447,22 @@ client.on("interactionCreate", async (interaction) => {
     if (
       commandName === "pair" ||
       commandName === "debug" ||
-      commandName === "kick"
+      commandName === "kick" || 
+      commandName === "optout" ||
+      commandName === "reminder"
     ) {
       if (interaction.user.id === adminid) {
+        if (commandName === 'optout') {
+          await optoutmessage();
+          await interaction.reply({content: `I sent the message. Try it out!`, ephemeral: true}); 
+        }
+        if (commandName === "reminder") {
+          await reminder();
+          await interaction.reply({
+            content: `I've sent everyone a reminder!`,
+            ephemeral: true,
+          });
+        }    
         if (commandName === "pair") {
           await pairing();
           await interaction.reply({
@@ -592,25 +605,14 @@ client.on("interactionCreate", async (interaction) => {
         }
       } else {
         await interaction.reply({
-          content: `Only Brian can use this command.`,
+          content: `Only an admin can use this command.`,
           ephemeral: true,
         });
       }
     }
-    // if (commandName === 'optout') {
-    //   await optoutmessage();
-    //   await interaction.reply({content: `I sent the message. Try it out!`, ephemeral: true}); 
-    // }
     // if (commandName === 'feedback') {
     //   await feedback();
     //   await interaction.reply({content: `I've sent everyone a feedback form!`, ephemeral: true});
-    // }
-    // if (commandName === "reminder") {
-    //   await reminder();
-    //   await interaction.reply({
-    //     content: `I've sent everyone a reminder!`,
-    //     ephemeral: true,
-    //   });
     // }
   } else {
     // joining 1-1
@@ -907,10 +909,10 @@ async function reminder() {
     const user2 = await client.users.fetch(current_pairs[i][1]);
     user1.send(
       `Don't forget to meet up with ${user2.username}, if you haven't already!`
-    );
+    ).catch(console.error); 
     user2.send(
       `Don't forget to meet up with ${user1.username}, if you haven't already!`
-    );
+    ).catch(console.error);
   }
 }
 
