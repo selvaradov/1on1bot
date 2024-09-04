@@ -23,3 +23,8 @@ Used by Atlas Fellows and SPARC2024 attendees.
 A: This is an ✨intentional feature✨ so you don't have to waste time and money setting up a database.
 #### Q: Do you have any planned updates?
 A: Small group meeting, feedback mechanism, and maybe eventually, a proper database.
+## Areas to develop
+### Handling of frequencies
+The code is configured so that when somebody joins they immediately get a partner if possible. But say they only want fortnightly meetings, if they're matched up in the first week and the next week is even, perhaps they'll be paired two weeks in a row -- so we might need an offset property? (this may be overly complex though). Equally, maybe somebody doesn't get paired up immediately, the next week is odd, then they will go for two whole weeks without a pair. So we want to deal with this too (and in the general case of frequency n).
+
+One problem with this is that two people who set fortnightly frequency and join in consecutive weeks will never be paired up with each other. Giving everybody an offset of zero avoids this.
