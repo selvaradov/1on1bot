@@ -40,7 +40,6 @@ import {
   getActivePeople,
 } from "./database.js";
 
-import { removeUserFromProgram, findPartnerForUser } from './userUtils.js';
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -205,13 +204,8 @@ client.once("ready", async () => {
 });
 
 async function removeUser(userId, serverId) {
-  // remove user's preferredPairs
   await removePreferredPairsForUser(userId, serverId);
-  console.log("removed preferred pairs");
-  // remove user from unpaired
   await removeUnpaired(userId, serverId);
-  console.log("removed unpaired");
-  // remove user from currentPairs
   const currentPair = await getCurrentPairWithUser(userId, serverId);
   let partnerId;
   let newPartner;
@@ -222,27 +216,19 @@ async function removeUser(userId, serverId) {
         ? currentPair[0].user2Id
         : currentPair[0].user1Id;
     await removeCurrentPairsForUser(userId, serverId);
-    console.log("removed current pairs");
     // remove user and partner from each other's previous list
     await removePreviousPair(userId, partnerId, serverId);
-    console.log("removed previous pair");
     // find a new partner for partner
     const unpaired = await getUnpaired(serverId);
-    console.log("got unpaired", unpaired);
     if (unpaired.length > 0) {
-      console.log("adding new partner");
       newPartner = unpaired[0].userId;
       await addCurrentPair(partnerId, newPartner, serverId);
       await removeUnpaired(newPartner, serverId);
     } else {
-      console.log("adding old to unpaired");
       await addUnpaired(partnerId, serverId);
     }
   }
-  console.log("done with searching for new partner");
-  // remove user from people
   await setStatus(userId, serverId, "left");
-  console.log("removed person");
   return [partnerId, newPartner];
 }
 
