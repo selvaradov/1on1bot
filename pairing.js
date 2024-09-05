@@ -11,6 +11,7 @@ import {
   getCurrentPairs,
   optInAll,
   updatePersonOptIn,
+  removePreferredPair,
 } from "./database.js";
 
 import client from "./bot.js";
@@ -60,11 +61,14 @@ export async function generatePairing(serverId) {
 
   // create the pairings
   // pair all the preferred pairs
-  for (const [user1, user2] of preferredPairs) {
+  for (const pair of preferredPairs) {
+    const user1 = pair.user1Id;
+    const user2 = pair.user2Id;  
     if (remainingToPair.has(user1) && remainingToPair.has(user2)) {
       currentPairs.push([user1, user2]);
       remainingToPair.delete(user1);
       remainingToPair.delete(user2);
+      await removePreferredPair(user1, user2, serverId);
     }
   }
   // pair all the previously unpaired pairs
