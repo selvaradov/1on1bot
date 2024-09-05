@@ -191,7 +191,7 @@ export async function handleReminder(interaction, guild) {
     content: `I've sent everyone a reminder!`,
     ephemeral: true,
   });
-} // TODO not sure the reminders work
+}
 
 export async function handleOptout(interaction, guild) {
   await optoutMessage(guild.id);
