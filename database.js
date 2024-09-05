@@ -69,6 +69,8 @@ async function initializeDatabase() {
       FOREIGN KEY (userId, serverId) REFERENCES people(userId, serverId)
     );
   `);
+
+  console.log('Database initialized');
 }
 
 async function getWeek(serverId) {
