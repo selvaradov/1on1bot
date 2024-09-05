@@ -12,7 +12,7 @@ Click [this link](https://discord.com/oauth2/authorize?client_id=128109506041872
 - Send reactions
   - To add an ❌ emoji to the opt-out message
 
-If you already have a role on the server called "1-1", please ensure you either remove that role or move the "1-1 Bot" role above it before anybody tries to join the 1-1 programme, or there will be permission issues.
+*If you already have a role on the server called "1-1", please ensure you either remove that role or move the "1-1 Bot" role above it before anybody tries to join the 1-1 programme, or there will be permission issues.*
 
 ## Functions
 1. **/join:** add the user to the 1-1 programme.
