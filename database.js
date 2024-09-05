@@ -91,7 +91,7 @@ async function setWeek(serverId, week) {
 
 async function getPeople(serverId) {
   return await db.all(
-    "SELECT userId, frequency, optedIn FROM people WHERE serverId = ?",
+    "SELECT userId, frequency, optedIn, status FROM people WHERE serverId = ?",
     serverId,
   );
 }
