@@ -28,7 +28,7 @@ export async function handleJoin(interaction, guild) {
     await interaction.member.roles.add(role);
     await updatePersonFrequency(interaction.user.id, guild.id, 1);
     await interaction.reply(
-      `<@${interaction.user.id}> welcome back to the 1-1 programme! We've reset your frequency to weekly, so make sure to use \`/change-frequency\` to alter it if desired.`
+      `<@${interaction.user.id}> welcome back to the 1-1 programme! We've reset your frequency to weekly, so make sure to use \`/change-frequency\` to alter it if desired.`,
     );
     await findPartnerForUser(interaction.user.id, guild.id);
   } else if (user) {
@@ -40,7 +40,7 @@ export async function handleJoin(interaction, guild) {
     await addPerson(interaction.user.id, guild.id, 1, 1);
     await interaction.member.roles.add(role);
     await interaction.reply(
-      `<@${interaction.user.id}> welcome to the 1-1 programme! Your meeting frequency is set to weekly by default. Use \`/change-frequency\` to alter it.`
+      `<@${interaction.user.id}> welcome to the 1-1 programme! Your meeting frequency is set to weekly by default. Use \`/change-frequency\` to alter it.`,
     );
     await findPartnerForUser(interaction.user.id, guild.id);
   }
@@ -265,7 +265,7 @@ export async function handleAddPreferredPartner(interaction, guild) {
   const existingPreference = await isPreferredPair(
     interaction.user.id,
     partner,
-    guild.id
+    guild.id,
   );
   if (existingPreference) {
     await interaction.reply({
@@ -317,7 +317,7 @@ export async function handleAddPreviousPartner(interaction, guild) {
 export async function handleCheckCurrentPartner(interaction, guild) {
   const currentPair = await getCurrentPairWithUser(
     interaction.user.id,
-    guild.id
+    guild.id,
   ); // NOTE this returns an array, maybe change driver function to return a single pair
 
   if (currentPair.length === 0) {
@@ -341,7 +341,7 @@ export async function handleCheckPreviousPartners(interaction, guild) {
   // Check if the user has any previous partners
   const previousPartners = await getPreviousPairs(
     interaction.user.id,
-    guild.id
+    guild.id,
   );
   if (previousPartners.length === 0) {
     await interaction.reply({

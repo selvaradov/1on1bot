@@ -212,7 +212,7 @@ async function setupServerJobs(serverId) {
       async () => {
         await generatePairing(serverId);
       },
-      { timezone: "UTC" }
+      { timezone: "UTC" },
     ),
 
     // Weekly reminder
@@ -221,7 +221,7 @@ async function setupServerJobs(serverId) {
       async () => {
         await sendReminder(serverId);
       },
-      { timezone: "UTC" }
+      { timezone: "UTC" },
     ),
 
     // Weekly opt-out message
@@ -230,7 +230,7 @@ async function setupServerJobs(serverId) {
       async () => {
         await optoutMessage(serverId);
       },
-      { timezone: "UTC" }
+      { timezone: "UTC" },
     ),
   ];
 

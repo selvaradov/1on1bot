@@ -63,7 +63,7 @@ export async function generatePairing(serverId) {
   // pair all the preferred pairs
   for (const pair of preferredPairs) {
     const user1 = pair.user1Id;
-    const user2 = pair.user2Id;  
+    const user2 = pair.user2Id;
     if (remainingToPair.has(user1) && remainingToPair.has(user2)) {
       currentPairs.push([user1, user2]);
       remainingToPair.delete(user1);
@@ -79,7 +79,7 @@ export async function generatePairing(serverId) {
         !previousPairs.some(
           (pair) =>
             (pair.user1Id === user1 && pair.user2Id === user2) ||
-            (pair.user1Id === user2 && pair.user2Id === user1)
+            (pair.user1Id === user2 && pair.user2Id === user1),
         )
       ) {
         currentPairs.push([user1, user2]);
@@ -109,7 +109,7 @@ export async function generatePairing(serverId) {
     setCurrentPairs(currentPairs, serverId),
     setUnpaired(unpairedUsers, serverId), // here we only keep users who are opted in
     ...currentPairs.map(([user1, user2]) =>
-      addPreviousPair(user1, user2, serverId, new Date())
+      addPreviousPair(user1, user2, serverId, new Date()),
     ), // NOTE perhaps this is better done in initWeek for the past week's pairs (so you can handle non-attendance etc)
   ]);
 
@@ -132,11 +132,11 @@ export async function sendReminder(serverId) {
     const user2 = await client.users.fetch(pair.user2Id);
 
     user1.send(
-      `Don't forget to meet up with ${user2.username}, if you haven't already!`
+      `Don't forget to meet up with ${user2.username}, if you haven't already!`,
     );
 
     user2.send(
-      `Don't forget to meet up with ${user1.username}, if you haven't already!`
+      `Don't forget to meet up with ${user1.username}, if you haven't already!`,
     );
   }
 }
@@ -147,7 +147,7 @@ export async function optoutMessage(serverId) {
   const channelId = await getChannel(serverId);
   const channel = client.channels.cache.get(channelId);
   const message = await channel.send(
-    "React to this message with ❌ to opt out of pairings this week!"
+    "React to this message with ❌ to opt out of pairings this week!",
   );
   await message.react("❌");
 
@@ -162,11 +162,11 @@ export async function optoutMessage(serverId) {
   // Handle reactions added and removed
   collector.on(
     "collect",
-    async (reaction, user) => await updatePersonOptIn(user.id, serverId, 0)
+    async (reaction, user) => await updatePersonOptIn(user.id, serverId, 0),
   );
   collector.on(
     "remove",
-    async (reaction, user) => await updatePersonOptIn(user.id, serverId, 1)
+    async (reaction, user) => await updatePersonOptIn(user.id, serverId, 1),
   );
 
   // could potentially ping everyone who opted out here but that might be annoying
