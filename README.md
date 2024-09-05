@@ -19,10 +19,8 @@ Used by Atlas Fellows and SPARC2024 attendees.
 10. **/kick:** admin function; remove another user from the 1-1 program.  
 11. **optout:** send a message 48 hours in advance, which allows users to opt-out for a week by reacting to it. 
 ## FAQ
-#### Q: Why are you using txt files to store your data?
-A: This is an ✨intentional feature✨ so you don't have to waste time and money setting up a database.
 #### Q: Do you have any planned updates?
-A: Small group meeting, feedback mechanism, and maybe eventually, a proper database.
+A: Small group meeting, feedback mechanism (including whether the 1:1 actually happened, so we can nudge people who're enrolled but don't participate), and handling pairing across multiple servers to avoid duplicates.
 ## Areas to develop
 ### Handling of frequencies
 The code is configured so that when somebody joins they immediately get a partner if possible. But say they only want fortnightly meetings, if they're matched up in the first week and the next week is even, perhaps they'll be paired two weeks in a row -- so we might need an offset property? (this may be overly complex though). Equally, maybe somebody doesn't get paired up immediately, the next week is odd, then they will go for two whole weeks without a pair. So we want to deal with this too (and in the general case of frequency n).
