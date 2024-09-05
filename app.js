@@ -123,6 +123,7 @@ async function setupCommands(guild) {
 
 // When added to a new server, add a 1-1s channel, and save to database
 client.on("guildCreate", async (guild) => {
+  // NOTE if added to a server whilst offline it will not initialise correctly
   console.log("Added to a new server:", guild.name);
   try {
     // Create a category for the 1-1s programme
