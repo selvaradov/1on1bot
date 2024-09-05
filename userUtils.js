@@ -18,7 +18,7 @@ export const removeUser = async (userId, serverId) => {
   // Notify the server
   const channelId = await getChannel(serverId);
   const channel = client.channels.cache.get(channelId);
-  await channel.send(`<@${userId}> has left the 1:1 programme.`);
+  await channel.send(`<@${userId}> has left the 1-1 programme.`);
 
   await removePreferredPairsForUser(userId, serverId);
   await removeUnpaired(userId, serverId);
