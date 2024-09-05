@@ -8,10 +8,11 @@
   },
   "type": "module",
   "contributors": [
-    "Brian Zhao",
-    "Rohan Selva-Radov"
+    "Bufan Zhao <https://github.com/brian-bfz>",
+    "Rohan Selva-Radov <https://github.com/selvaradov>",
+    "Charles Zhang <https://github.com/Charles1729>"
   ],
-  "license": "MIT",
+  "license": "GPL-3.0-only",
   "dependencies": {
     "discord.js": "^14.15.3",
     "dotenv": "^16.4.5",
