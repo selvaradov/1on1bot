@@ -43,7 +43,7 @@ export const findPartnerForUser = async (userId, serverId) => {
     const partnerId = unpaired[0].userId;
     await Promise.all([
       addCurrentPair(userId, partnerId, serverId),
-      addPreviousPair(userId, partnerId, serverId, new Date()),
+      addPreviousPair(userId, partnerId, serverId, new Date().toISOString()),
       removeUnpaired(partnerId, serverId),
     ]);
     await channel.send(`New pair: <@${userId}> <@${partnerId}>`);
