@@ -3,9 +3,7 @@ import { open } from "sqlite";
 
 let db;
 
-// TODO put all the `export` statements inline
-
-async function initializeDatabase() {
+export async function initializeDatabase() {
   db = await open({
     filename: "data.db",
     driver: sqlite3.Database,
@@ -77,7 +75,7 @@ async function initializeDatabase() {
   console.log("Database initialized");
 }
 
-async function getWeek(serverId) {
+export async function getWeek(serverId) {
   const result = await db.get(
     "SELECT week FROM servers WHERE serverId = ?",
     serverId,
@@ -85,7 +83,7 @@ async function getWeek(serverId) {
   return result ? result.week : 0;
 }
 
-async function setWeek(serverId, week) {
+export async function setWeek(serverId, week) {
   await db.run(
     "UPDATE servers SET week = ? WHERE serverId = ?",
     week,
@@ -93,14 +91,14 @@ async function setWeek(serverId, week) {
   );
 }
 
-async function getPeople(serverId) {
+export async function getPeople(serverId) {
   return await db.all(
     "SELECT userId, frequency, optedIn, status FROM people WHERE serverId = ?",
     serverId,
   );
 }
 
-async function findUser(userId, serverId) {
+export async function findUser(userId, serverId) {
   const result = await db.get(
     "SELECT status FROM people WHERE userId = ? AND serverId = ?",
     userId,
@@ -109,7 +107,7 @@ async function findUser(userId, serverId) {
   return result;
 }
 
-async function addPerson(userId, serverId, frequency = 1, isOptedIn = 1) {
+export async function addPerson(userId, serverId, frequency = 1, isOptedIn = 1) {
   await db.run(
     "INSERT OR REPLACE INTO people (userId, serverId, frequency, optedIn) VALUES (?, ?, ?, ?)",
     userId,
@@ -119,7 +117,7 @@ async function addPerson(userId, serverId, frequency = 1, isOptedIn = 1) {
   );
 }
 
-async function removePerson(userId, serverId) {
+export async function removePerson(userId, serverId) {
   await db.run(
     "DELETE FROM people WHERE userId = ? AND serverId = ?",
     userId,
@@ -127,7 +125,7 @@ async function removePerson(userId, serverId) {
   );
 }
 
-async function setStatus(userId, serverId, status) {
+export async function setStatus(userId, serverId, status) {
   await db.run(
     "UPDATE people SET status = ? WHERE userId = ? AND serverId = ?",
     status,
@@ -136,7 +134,7 @@ async function setStatus(userId, serverId, status) {
   );
 }
 
-async function getStatus(userId, serverId) {
+export async function getStatus(userId, serverId) {
   const result = await db.get(
     "SELECT status FROM people WHERE userId = ? AND serverId = ?",
     userId,
@@ -145,14 +143,14 @@ async function getStatus(userId, serverId) {
   return result;
 }
 
-async function getActivePeople(serverId) {
+export async function getActivePeople(serverId) {
   return await db.all(
     'SELECT userId, frequency FROM people WHERE serverId = ? AND status = "active" AND optedIn = 1',
     serverId,
   );
 }
 
-async function updatePersonFrequency(userId, serverId, frequency) {
+export async function updatePersonFrequency(userId, serverId, frequency) {
   await db.run(
     "UPDATE people SET frequency = ? WHERE userId = ? AND serverId = ?",
     frequency,
@@ -161,7 +159,7 @@ async function updatePersonFrequency(userId, serverId, frequency) {
   );
 }
 
-async function updatePersonOptIn(userId, serverId, isOptedIn) {
+export async function updatePersonOptIn(userId, serverId, isOptedIn) {
   await db.run(
     "UPDATE people SET optedIn = ? WHERE userId = ? AND serverId = ?",
     isOptedIn,
@@ -170,18 +168,18 @@ async function updatePersonOptIn(userId, serverId, isOptedIn) {
   );
 }
 
-async function optInAll(serverId) {
+export async function optInAll(serverId) {
   await db.run("UPDATE people SET optedIn = 1 WHERE serverId = ?", serverId);
 }
 
-async function getCurrentPairs(serverId) {
+export async function getCurrentPairs(serverId) {
   return await db.all(
     "SELECT user1Id, user2Id FROM current_pairs WHERE serverId = ?",
     serverId,
   );
 }
 
-async function getCurrentPairWithUser(userId, serverId) {
+export async function getCurrentPairWithUser(userId, serverId) {
   return await db.all(
     "SELECT user1Id, user2Id FROM current_pairs WHERE (user1Id = ? OR user2Id = ?) AND serverId = ?",
     userId,
@@ -190,7 +188,7 @@ async function getCurrentPairWithUser(userId, serverId) {
   );
 }
 
-async function setCurrentPairs(pairs, serverId) {
+export async function setCurrentPairs(pairs, serverId) {
   await db.run("DELETE FROM current_pairs WHERE serverId = ?", serverId);
   for (const [user1, user2] of pairs) {
     await db.run(
@@ -202,7 +200,7 @@ async function setCurrentPairs(pairs, serverId) {
   }
 }
 
-async function addCurrentPair(user1Id, user2Id, serverId) {
+export async function addCurrentPair(user1Id, user2Id, serverId) {
   await db.run(
     "INSERT INTO current_pairs (user1Id, user2Id, serverId) VALUES (?, ?, ?)",
     user1Id,
@@ -211,7 +209,7 @@ async function addCurrentPair(user1Id, user2Id, serverId) {
   );
 }
 
-async function removeCurrentPairsForUser(userId, serverId) {
+export async function removeCurrentPairsForUser(userId, serverId) {
   await db.run(
     "DELETE FROM current_pairs WHERE (user1Id = ? OR user2Id = ?) AND serverId = ?",
     userId,
@@ -220,14 +218,14 @@ async function removeCurrentPairsForUser(userId, serverId) {
   );
 }
 
-async function getPreferredPairs(serverId) {
+export async function getPreferredPairs(serverId) {
   return await db.all(
     "SELECT user1Id, user2Id FROM preferred_pairs WHERE serverId = ?",
     serverId,
   );
 }
 
-async function getPreferredPairsForUser(userId, serverId) {
+export async function getPreferredPairsForUser(userId, serverId) {
   return await db.all(
     "SELECT user2Id FROM preferred_pairs WHERE user1Id = ? AND serverId = ?",
     userId,
@@ -235,7 +233,7 @@ async function getPreferredPairsForUser(userId, serverId) {
   );
 }
 
-async function isPreferredPair(user1Id, user2Id, serverId) {
+export async function isPreferredPair(user1Id, user2Id, serverId) {
   return await db.get(
     "SELECT 1 FROM preferred_pairs WHERE (user1Id = ? AND user2Id = ?) OR (user1Id = ? AND user2Id = ?) AND serverId = ?",
     user1Id,
@@ -246,7 +244,7 @@ async function isPreferredPair(user1Id, user2Id, serverId) {
   );
 }
 
-async function addPreferredPair(user1Id, user2Id, serverId) {
+export async function addPreferredPair(user1Id, user2Id, serverId) {
   await db.run(
     "INSERT OR REPLACE INTO preferred_pairs (user1Id, user2Id, serverId) VALUES (?, ?, ?)",
     user1Id,
@@ -255,7 +253,7 @@ async function addPreferredPair(user1Id, user2Id, serverId) {
   );
 }
 
-async function removePreferredPair(user1Id, user2Id, serverId) {
+export async function removePreferredPair(user1Id, user2Id, serverId) {
   await db.run(
     "DELETE FROM preferred_pairs WHERE (user1Id = ? AND user2Id = ?) OR (user1Id = ? AND user2Id = ?) AND serverId = ?",
     user1Id,
@@ -266,7 +264,7 @@ async function removePreferredPair(user1Id, user2Id, serverId) {
   );
 }
 
-async function removePreferredPairsForUser(userId, serverId) {
+export async function removePreferredPairsForUser(userId, serverId) {
   await db.run(
     "DELETE FROM preferred_pairs WHERE (user1Id = ? OR user2Id = ?) AND serverId = ?",
     userId,
@@ -275,14 +273,14 @@ async function removePreferredPairsForUser(userId, serverId) {
   );
 }
 
-async function getPreviousPairs(serverId) {
+export async function getPreviousPairs(serverId) {
   return await db.all(
     "SELECT user1Id, user2Id, week, meetingStatus FROM previous_pairs WHERE serverId = ?",
     serverId,
   );
 }
 
-async function getPreviousPairsForUser(userId, serverId) {
+export async function getPreviousPairsForUser(userId, serverId) {
   return await db.all(
     "SELECT user2Id, status FROM previous_pairs WHERE user1Id = ? AND serverId = ?",
     userId,
@@ -290,7 +288,7 @@ async function getPreviousPairsForUser(userId, serverId) {
   );
 }
 
-async function addPreviousPair(
+export async function addPreviousPair(
   user1Id,
   user2Id,
   serverId,
@@ -310,7 +308,7 @@ async function addPreviousPair(
   // Original code kept only the last 10 pairs for each user, but not replicating that here.
 }
 
-async function removePreviousPair(user1Id, user2Id, serverId, week) {
+export async function removePreviousPair(user1Id, user2Id, serverId, week) {
   await db.run(
     "DELETE FROM previous_pairs WHERE (user1Id = ? AND user2Id = ?) OR (user1Id = ? AND user2Id = ?) AND serverId = ? AND week = ?",
     user1Id,
@@ -322,7 +320,7 @@ async function removePreviousPair(user1Id, user2Id, serverId, week) {
   );
 }
 
-async function getLastNStatusesAbout(userId, serverId, n) {
+export async function getLastNStatusesAbout(userId, serverId, n) {
   return await db.all(
     `
     SELECT user1Id, user2Id, date, meetingStatus
@@ -338,7 +336,7 @@ async function getLastNStatusesAbout(userId, serverId, n) {
   );
 }
 
-async function getFeedbackForWeek(userId, partnerId, serverId, week) {
+export async function getFeedbackForWeek(userId, partnerId, serverId, week) {
   return await db.get(
     `
     SELECT meetingStatus
@@ -354,14 +352,14 @@ async function getFeedbackForWeek(userId, partnerId, serverId, week) {
   );
 }
 
-async function getUnpaired(serverId) {
+export async function getUnpaired(serverId) {
   return await db.all(
     "SELECT userId FROM unpaired WHERE serverId = ?",
     serverId,
   );
 }
 
-async function setUnpaired(userIds, serverId) {
+export async function setUnpaired(userIds, serverId) {
   await db.run("DELETE FROM unpaired WHERE serverId = ?", serverId);
   for (const userId of userIds) {
     await db.run(
@@ -372,7 +370,7 @@ async function setUnpaired(userIds, serverId) {
   }
 }
 
-async function addUnpaired(userId, serverId) {
+export async function addUnpaired(userId, serverId) {
   await db.run(
     "INSERT INTO unpaired (userId, serverId) VALUES (?, ?)",
     userId,
@@ -380,7 +378,7 @@ async function addUnpaired(userId, serverId) {
   );
 }
 
-async function removeUnpaired(userId, serverId) {
+export async function removeUnpaired(userId, serverId) {
   await db.run(
     "DELETE FROM unpaired WHERE userId = ? AND serverId = ?",
     userId,
@@ -388,7 +386,7 @@ async function removeUnpaired(userId, serverId) {
   );
 }
 
-async function addServer(serverId, channelId) {
+export async function addServer(serverId, channelId) {
   await db.run(
     "INSERT INTO servers (serverId, channel) VALUES (?, ?)",
     serverId,
@@ -396,7 +394,7 @@ async function addServer(serverId, channelId) {
   );
 }
 
-async function getChannel(serverId) {
+export async function getChannel(serverId) {
   const result = await db.get(
     "SELECT channel FROM servers WHERE serverId = ?",
     serverId,
@@ -404,7 +402,7 @@ async function getChannel(serverId) {
   return result ? result.channel : null;
 }
 
-async function setAdminRole(serverId, roleId) {
+export async function setAdminRole(serverId, roleId) {
   await db.run(
     "UPDATE servers SET adminRole = ? WHERE serverId = ?",
     roleId,
@@ -412,51 +410,10 @@ async function setAdminRole(serverId, roleId) {
   );
 }
 
-async function getAdminRole(serverId) {
+export async function getAdminRole(serverId) {
   const result = await db.get(
     "SELECT adminRole FROM servers WHERE serverId = ?",
     serverId,
   );
   return result ? result.adminRole : null;
 }
-
-export {
-  initializeDatabase,
-  getWeek,
-  setWeek,
-  getPeople,
-  findUser,
-  addPerson,
-  removePerson,
-  updatePersonFrequency,
-  updatePersonOptIn,
-  optInAll,
-  getCurrentPairs,
-  getCurrentPairWithUser,
-  setCurrentPairs,
-  getPreferredPairsForUser,
-  isPreferredPair,
-  addCurrentPair,
-  removeCurrentPairsForUser,
-  getPreferredPairs,
-  addPreferredPair,
-  removePreferredPair,
-  removePreferredPairsForUser,
-  getPreviousPairs,
-  getPreviousPairsForUser,
-  addPreviousPair,
-  removePreviousPair,
-  getUnpaired,
-  setUnpaired,
-  addUnpaired,
-  removeUnpaired,
-  addServer,
-  getChannel,
-  setAdminRole,
-  getAdminRole,
-  setStatus,
-  getStatus,
-  getActivePeople,
-  getLastNStatusesAbout,
-  getFeedbackForWeek,
-};
