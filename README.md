@@ -25,10 +25,11 @@ Click [this link](https://discord.com/oauth2/authorize?client_id=128109506041872
 8. **/pair:** admin function; manually run the pairing function; normally done automatically every Monday.
 9. **/debug:** admin function; return the values of the programme's arrays.
 10. **/kick:** admin function; remove another user from the 1-1 programme.  
-11. **optout:** send a message 48 hours in advance, which allows users to opt-out for a week by reacting to it. 
+11. **/optout:** test sending a message 48 hours in advance, which allows users to opt-out for a week by reacting to it.
+12. **/feedback:** test requesting feedback from all paired users about whether their meetings went ahead as scheduled.
 ## FAQ
 #### Q: Do you have any planned updates?
-A: Small group meeting, feedback mechanism (including whether the 1:1 actually happened, so we can nudge people who're enrolled but don't participate), and handling pairing across multiple servers to avoid duplicates.
+A: Small group meeting, handling pairing across multiple servers to avoid duplicates, and refactoring code.
 ## Areas to develop
 ### Handling of frequencies
 The code is configured so that when somebody joins they immediately get a partner if possible. But say they only want fortnightly meetings, if they're matched up in the first week and the next week is even, perhaps they'll be paired two weeks in a row -- so we might need an offset property? (this may be overly complex though). Equally, maybe somebody doesn't get paired up immediately, the next week is odd, then they will go for two whole weeks without a pair. So we want to deal with this too (and in the general case of frequency n).
