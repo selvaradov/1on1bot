@@ -30,8 +30,7 @@ export async function debug(interaction, serverId) {
   debugOutput += "\nPrevious Pairs:\n";
   const previousPairs = await getPreviousPairs(serverId);
   previousPairs.forEach((pair) => {
-    debugOutput += JSON.stringify(pair) + ", ";
-    debugOutput += "\n\n";
+    debugOutput += JSON.stringify(pair) + "\n";
   });
   debugOutput += "\nUnpaired people:\n";
   const unpaired = await getUnpaired(serverId);
