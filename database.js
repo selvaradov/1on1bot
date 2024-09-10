@@ -3,6 +3,8 @@ import { open } from "sqlite";
 
 let db;
 
+// TODO put all the `export` statements inline
+
 async function initializeDatabase() {
   db = await open({
     filename: "data.db",
@@ -55,6 +57,8 @@ async function initializeDatabase() {
       user2Id TEXT,
       serverId TEXT,
       date TEXT DEFAULT CURRENT_TIMESTAMP,
+      week INTEGER,
+      meetingStatus TEXT DEFAULT NULL,
       PRIMARY KEY (user1Id, user2Id, serverId, date),
       FOREIGN KEY (serverId) REFERENCES servers(serverId),
       FOREIGN KEY (user1Id, serverId) REFERENCES people(userId, serverId),
@@ -273,38 +277,80 @@ async function removePreferredPairsForUser(userId, serverId) {
 
 async function getPreviousPairs(serverId) {
   return await db.all(
-    "SELECT user1Id, user2Id FROM previous_pairs WHERE serverId = ?",
+    "SELECT user1Id, user2Id, week, meetingStatus FROM previous_pairs WHERE serverId = ?",
     serverId,
   );
 }
 
 async function getPreviousPairsForUser(userId, serverId) {
   return await db.all(
-    "SELECT user2Id FROM previous_pairs WHERE user1Id = ? AND serverId = ?",
+    "SELECT user2Id, status FROM previous_pairs WHERE user1Id = ? AND serverId = ?",
     userId,
     serverId,
   );
 }
 
-async function addPreviousPair(user1Id, user2Id, serverId, date) {
+async function addPreviousPair(
+  user1Id,
+  user2Id,
+  serverId,
+  date,
+  week,
+  meetingStatus,
+) {
   await db.run(
-    "INSERT INTO previous_pairs (user1Id, user2Id, serverId, date) VALUES (?, ?, ?, ?)",
+    "INSERT INTO previous_pairs (user1Id, user2Id, serverId, date, week, meetingStatus) VALUES (?, ?, ?, ?, ?, ?)",
     user1Id,
     user2Id,
     serverId,
     date,
+    week,
+    meetingStatus,
   );
   // Original code kept only the last 10 pairs for each user, but not replicating that here.
 }
 
-async function removePreviousPair(user1Id, user2Id, serverId) {
+async function removePreviousPair(user1Id, user2Id, serverId, week) {
   await db.run(
-    "DELETE FROM previous_pairs WHERE (user1Id = ? AND user2Id = ?) OR (user1Id = ? AND user2Id = ?) AND serverId = ?",
+    "DELETE FROM previous_pairs WHERE (user1Id = ? AND user2Id = ?) OR (user1Id = ? AND user2Id = ?) AND serverId = ? AND week = ?",
     user1Id,
     user2Id,
     user2Id,
     user1Id,
     serverId,
+    week,
+  );
+}
+
+async function getLastNStatusesAbout(userId, serverId, n) {
+  return await db.all(
+    `
+    SELECT user1Id, user2Id, date, meetingStatus
+    FROM previous_pairs
+    WHERE user2Id = ? AND serverId = ?
+    ORDER BY date DESC
+    LIMIT ?
+  `, // we're only looking for matches with user2Id because we need feedback given *about* the user
+    userId,
+    userId,
+    serverId,
+    n,
+  );
+}
+
+async function getFeedbackForWeek(userId, partnerId, serverId, week) {
+  return await db.get(
+    `
+    SELECT meetingStatus
+    FROM previous_pairs
+    WHERE (user1Id = ? AND user2Id = ? OR user1Id = ? AND user2Id = ?) AND serverId = ? AND week = ?
+  `,
+    userId,
+    partnerId,
+    partnerId,
+    userId,
+    serverId,
+    week,
   );
 }
 
@@ -411,4 +457,6 @@ export {
   setStatus,
   getStatus,
   getActivePeople,
+  getLastNStatusesAbout,
+  getFeedbackForWeek,
 };

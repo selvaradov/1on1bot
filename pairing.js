@@ -1,6 +1,5 @@
 import {
   getChannel,
-  addPreviousPair,
   getPreviousPairs,
   getPreferredPairs,
   setUnpaired,
@@ -105,9 +104,6 @@ export async function generatePairing(serverId) {
   await Promise.all([
     setCurrentPairs(currentPairs, serverId),
     setUnpaired(unpairedUsers, serverId), // here we only keep users who are opted in
-    ...currentPairs.map(([user1, user2]) =>
-      addPreviousPair(user1, user2, serverId, new Date().toISOString())
-    ), // NOTE perhaps this is better done in initWeek for the past week's pairs (so you can handle non-attendance etc)
   ]);
 
   // output the pairings to Discord

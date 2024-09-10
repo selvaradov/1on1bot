@@ -34,3 +34,18 @@ A: Small group meeting, feedback mechanism (including whether the 1:1 actually h
 The code is configured so that when somebody joins they immediately get a partner if possible. But say they only want fortnightly meetings, if they're matched up in the first week and the next week is even, perhaps they'll be paired two weeks in a row -- so we might need an offset property? (this may be overly complex though). Equally, maybe somebody doesn't get paired up immediately, the next week is odd, then they will go for two whole weeks without a pair. So we want to deal with this too (and in the general case of frequency n).
 
 One problem with this is that two people who set fortnightly frequency and join in consecutive weeks will never be paired up with each other. Giving everybody an offset of zero avoids this.
+
+### Handling of feedback
+- Once a week, 12 hours after the new pairings are sent out, we DM everybody to ask whether their meeting last week happened.
+  - They can say it happened, didn't, or is scheduled to occur.
+- If users conflict on their response, we just keep the first one and log an error message (I expect this not to happen often; if it does then I'll implement something more robust)
+- If for three consecutive weeks, person A is reported to have missed a meeting, they will be automatically removed from the programme
+  - This isn't a "punishment"; they can rejoin right away. It's just a behavioural nudge.
+  - The program is implemented to get feedback _about_ the user, so if person B misses three meetings in a row because their partners were disorganised, then they shouldn't be removed all (although even if they are, it's no big deal ideally)
+  - The way I achieve this is a pretty simple heuristic - probably an engaged participant will report feedback and the disengaged one won't, so the "missed" feedback will show up against the non-engaged participant, letting us identify them
+    - There's probably a more sophisticated approach here, e.g. tracking feedback in both directions etc etc.
+    - Or just accepting that in the rare case where an engaged user was for three consecutive weeks paired with disengaged users, they'll be removed and will have to rejoin
+- One somewhat by design feature is that if you re-join and miss your first meeting, that will count as going over the three consecutive misses immediately, and you'll get removed straight away.
+  - I think this is OK to have, but with a bit of effort it can be changed.
+- Also, if a user leaves during the middle of a week, their ex-partner won't be asked to give feedback, since they're no longer in the programme. Again, I think this makes sense.
+- I'm open to modifying the definition of "disengaged", e.g. maybe it should be cumulative not consecutive, maybe three is too low/high, etc.

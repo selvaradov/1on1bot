@@ -3,7 +3,7 @@ import { schedule } from "node-cron";
 import { addServer, initializeDatabase } from "./database.js";
 import * as commandHandlers from "./commandHandlers.js";
 import { generatePairing } from "./pairing.js";
-import { sendReminder, sendOptoutMessage } from "./messages.js";
+import { sendReminder, sendOptoutMessage, requestFeedback } from "./messages.js";
 import client, { shutdownBot } from "./bot.js";
 
 import dotenv from "dotenv";
@@ -85,6 +85,10 @@ async function setupCommands(guild) {
     {
       name: "optout",
       description: "Test the message for opting out.",
+    },
+    {
+      name: "feedback",
+      description: "Test the feedback request system.",
     },
     {
       name: "reminder",
@@ -187,6 +191,7 @@ client.on("interactionCreate", async (interaction) => {
       commandHandlers.handleSetAdminRole(interaction, guild),
     reminder: () => commandHandlers.handleReminder(interaction, guild),
     optout: () => commandHandlers.handleOptout(interaction, guild),
+    feedback: () => commandHandlers.handleFeedback(interaction, guild),
   };
   const handler = handlers[commandName];
   if (handler) {
@@ -231,6 +236,15 @@ async function setupServerJobs(serverId) {
       "0 0 * * 6",
       async () => {
         await sendOptoutMessage(serverId);
+      },
+      { timezone: "UTC" },
+    ),
+
+    // Weekly feedback collection
+    schedule(
+      "0 12 * * 1",
+      async () => {
+        await requestFeedback(serverId);
       },
       { timezone: "UTC" },
     ),

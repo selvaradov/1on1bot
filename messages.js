@@ -5,6 +5,7 @@ import {
   getChannel,
   updatePersonOptIn,
 } from "./database.js";
+import { sendFeedbackDM } from "./feedback.js";
 
 export async function sendReminder(serverId) {
   const currentPairs = await getCurrentPairs(serverId);
@@ -51,4 +52,13 @@ export async function sendOptoutMessage(serverId) {
   );
 
   // could potentially ping everyone who opted out here but that might be annoying
+}
+
+export async function requestFeedback(serverId) {
+  const currentPairs = await getCurrentPairs(serverId);
+
+  for (const pair of currentPairs) {
+    await sendFeedbackDM(pair.user1Id, pair.user2Id, serverId);
+    await sendFeedbackDM(pair.user2Id, pair.user1Id, serverId);
+  }
 }

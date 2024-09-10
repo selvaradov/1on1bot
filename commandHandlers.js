@@ -18,7 +18,7 @@ import {
   getPreviousPairs,
 } from "./database.js";
 import { generatePairing } from "./pairing.js";
-import { sendOptoutMessage, sendReminder } from "./messages.js";
+import { requestFeedback, sendOptoutMessage, sendReminder } from "./messages.js";
 import { debug } from "./tests.js";
 
 export async function handleJoin(interaction, guild) {
@@ -187,6 +187,13 @@ export async function handlePair(interaction, guild) {
 }
 
 export async function handleReminder(interaction, guild) {
+  if (!(await is1to1Admin(interaction.member, guild.id))) {
+    await interaction.reply({
+      content: "You do not have permission to use this command.",
+      ephemeral: true,
+    });
+    return;
+  }
   await sendReminder(guild.id);
   await interaction.reply({
     content: `I've sent everyone a reminder!`,
@@ -195,6 +202,13 @@ export async function handleReminder(interaction, guild) {
 }
 
 export async function handleOptout(interaction, guild) {
+  if (!(await is1to1Admin(interaction.member, guild.id))) {
+    await interaction.reply({
+      content: "You do not have permission to use this command.",
+      ephemeral: true,
+    });
+    return;
+  }
   await sendOptoutMessage(guild.id);
   await interaction.reply({
     content: `I sent the message. Try it out!`,
@@ -202,7 +216,22 @@ export async function handleOptout(interaction, guild) {
   });
 }
 
+export async function handleFeedback(interaction, guild) {
+  await requestFeedback(guild.id);
+  await interaction.reply({
+    content: "Feedback test messages sent to all paired users.",
+    ephemeral: true,
+  });
+}
+
 export async function handleDebug(interaction, guild) {
+  if (!(await is1to1Admin(interaction.member, guild.id))) {
+    await interaction.reply({
+      content: "You do not have permission to use this command.",
+      ephemeral: true,
+    });
+    return;
+  }
   await debug(interaction, guild.id);
 }
 
