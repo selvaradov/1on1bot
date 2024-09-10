@@ -2,7 +2,8 @@ import { ChannelType } from "discord.js";
 import { schedule } from "node-cron";
 import { addServer, initializeDatabase } from "./database.js";
 import * as commandHandlers from "./commandHandlers.js";
-import { optoutMessage, sendReminder, generatePairing } from "./pairing.js";
+import { generatePairing } from "./pairing.js";
+import { sendReminder, sendOptoutMessage } from "./messages.js";
 import client, { shutdownBot } from "./bot.js";
 
 import dotenv from "dotenv";
@@ -229,7 +230,7 @@ async function setupServerJobs(serverId) {
     schedule(
       "0 0 * * 6",
       async () => {
-        await optoutMessage(serverId);
+        await sendOptoutMessage(serverId);
       },
       { timezone: "UTC" },
     ),

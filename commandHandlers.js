@@ -17,7 +17,8 @@ import {
   getCurrentPairWithUser,
   getPreviousPairs,
 } from "./database.js";
-import { generatePairing, sendReminder, optoutMessage } from "./pairing.js";
+import { generatePairing } from "./pairing.js";
+import { sendOptoutMessage, sendReminder } from "./messages.js";
 import { debug } from "./tests.js";
 
 export async function handleJoin(interaction, guild) {
@@ -194,7 +195,7 @@ export async function handleReminder(interaction, guild) {
 }
 
 export async function handleOptout(interaction, guild) {
-  await optoutMessage(guild.id);
+  await sendOptoutMessage(guild.id);
   await interaction.reply({
     content: `I sent the message. Try it out!`,
     ephemeral: true,
