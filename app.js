@@ -1,6 +1,6 @@
 import { ChannelType } from "discord.js";
 import { schedule } from "node-cron";
-import { addServer, initializeDatabase } from "./database.js";
+import { addServer, initialiseDatabase } from "./database.js";
 import * as commandHandlers from "./commandHandlers.js";
 import { generatePairing } from "./pairing.js";
 import { sendReminder, sendOptoutMessage, requestFeedback } from "./messages.js";
@@ -10,7 +10,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 try {
-  await initializeDatabase();
+  await initialiseDatabase();
 } catch (error) {
   console.error("Error initializing database:", error);
   process.exit(1);
