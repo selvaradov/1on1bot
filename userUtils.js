@@ -8,6 +8,8 @@ import {
   addUnpaired,
   getChannel,
   setStatus,
+  getPreferredPairs,
+  removePreferredPair,
 } from "./database.js";
 
 import client from "./bot.js";
@@ -33,9 +35,32 @@ export const removeUser = async (userId, serverId) => {
 };
 
 export const findPartnerForUser = async (userId, serverId) => {
-  const unpaired = await getUnpaired(serverId);
+  const [unpaired, preferredPairs] = await Promise.all([
+    getUnpaired(serverId),
+    getPreferredPairs(serverId),
+  ]);
   const channelId = await getChannel(serverId);
   const channel = client.channels.cache.get(channelId);
+
+  // Check for preferred pairs
+  const preferredPair = preferredPairs.find(
+    pair => pair.user1Id === userId || pair.user2Id === userId
+  );
+
+  if (preferredPair) {
+    const partnerId = preferredPair.user1Id === userId ? preferredPair.user2Id : preferredPair.user1Id;
+    if (unpaired.some(user => user.userId === partnerId)) {
+      await Promise.all([
+        addCurrentPair(userId, partnerId, serverId),
+        removeUnpaired(partnerId, serverId),
+        removePreferredPair(userId, partnerId, serverId),
+      ]);
+      await channel.send(`New pair: <@${userId}> <@${partnerId}>`);
+      return partnerId;
+    }
+  }
+
+  // Otherwise, use existing unpaired user
   if (unpaired.length > 0) {
     const partnerId = unpaired[0].userId;
     await Promise.all([
