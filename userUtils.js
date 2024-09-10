@@ -10,6 +10,7 @@ import {
   setStatus,
   getPreferredPairs,
   removePreferredPair,
+  getStatus,
 } from "./database.js";
 
 import client from "./bot.js";
@@ -75,3 +76,8 @@ export const findPartnerForUser = async (userId, serverId) => {
     return null;
   }
 };
+
+export const isActive = async (userId, serverId) => {
+  const status = await getStatus(userId, serverId);
+  return status === "active";
+}

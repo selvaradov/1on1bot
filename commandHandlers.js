@@ -1,4 +1,4 @@
-import { removeUser, findPartnerForUser } from "./userUtils.js";
+import { removeUser, findPartnerForUser, isActive } from "./userUtils.js";
 import {
   is1to1Admin,
   getOrCreateRole,
@@ -48,6 +48,13 @@ export async function handleJoin(interaction, guild) {
 }
 
 export async function handleLeave(interaction, guild) {
+  if (!(await isActive(interaction.user.id, guild.id))) {
+    await interaction.reply({
+      content: `You are not currently in the 1-1 programme.`,
+      ephemeral: true,
+    });
+    return;
+  }
   const role = await getRole(guild, "1-1");
   await interaction.reply({
     content:
@@ -268,6 +275,13 @@ export async function handleSetAdminRole(interaction, guild) {
 }
 
 export async function handleAddPreferredPartner(interaction, guild) {
+  if (!(await isActive(interaction.user.id, guild.id))) {
+    await interaction.reply({
+      content: "You need to be active in the 1-1 programme to use this command. Please use `/join` first.",
+      ephemeral: true,
+    });
+    return;
+  }
   let tag = interaction.options.getString("tag");
   if (tag.length < 3) {
     await interaction.reply({
@@ -310,9 +324,16 @@ export async function handleAddPreferredPartner(interaction, guild) {
     content: "Preferred partner added successfully.",
     ephemeral: true,
   });
-} // TODO check that preferred partners gets cleared when they're paired
+}
 
 export async function handleAddPreviousPartner(interaction, guild) {
+  if (!(await isActive(interaction.user.id, guild.id))) {
+    await interaction.reply({
+      content: "You need to be active in the 1-1 programme to use this command. Please use `/join` first.",
+      ephemeral: true,
+    });
+    return;
+  }
   let tag = interaction.options.getString("tag");
   if (tag.length < 3) {
     await interaction.reply({
@@ -345,6 +366,13 @@ export async function handleAddPreviousPartner(interaction, guild) {
 }
 
 export async function handleCheckCurrentPartner(interaction, guild) {
+  if (!(await isActive(interaction.user.id, guild.id))) {
+    await interaction.reply({
+      content: "You need to be active in the 1-1 programme to use this command. Please use `/join` first.",
+      ephemeral: true,
+    });
+    return;
+  }
   const currentPair = await getCurrentPairWithUser(
     interaction.user.id,
     guild.id,
@@ -368,6 +396,13 @@ export async function handleCheckCurrentPartner(interaction, guild) {
 }
 
 export async function handleCheckPreviousPartners(interaction, guild) {
+  if (!(await isActive(interaction.user.id, guild.id))) {
+    await interaction.reply({
+      content: "You need to be active in the 1-1 programme to use this command. Please use `/join` first.",
+      ephemeral: true,
+    });
+    return;
+  }
   // Check if the user has any previous partners
   const previousPartners = await getPreviousPairs(
     interaction.user.id,
