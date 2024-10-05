@@ -117,10 +117,19 @@ async function migrateData(
       if (!user2Id) {
         continue;
       }
-      await db.run(
-        "INSERT OR REPLACE INTO previous_pairs (user1Id, user2Id, serverId, date) VALUES (?, ?, ?, ?)",
-        [user1Id, user2Id, serverId, null],
+
+      // Check if the pair already exists
+      const existingPair = await db.get(
+        `SELECT 1 FROM previous_pairs 
+               WHERE user1Id = ? AND user2Id = ? AND serverId = ?`,
+        [user1Id, user2Id, serverId],
       );
+      if (!existingPair) {
+        await db.run(
+          "INSERT OR REPLACE INTO previous_pairs (user1Id, user2Id, serverId, date) VALUES (?, ?, ?, ?)",
+          [user1Id, user2Id, serverId, null],
+        );
+      }
     }
   }
 
@@ -138,12 +147,12 @@ async function migrateData(
 
 const servers = [
   {
-    path: "/root/atlas",
+    path: "./root/atlas",
     id: "982436897571881061",
     channel: "1221866923701174393",
   },
   {
-    path: "/root/sparc",
+    path: "./root/sparc",
     id: "1186404061424132168",
     channel: "1268699299387015270",
   },
