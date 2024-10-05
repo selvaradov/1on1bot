@@ -140,7 +140,7 @@ export async function getStatus(userId, serverId) {
     userId,
     serverId,
   );
-  return result;
+  return result ? result.status : null;
 }
 
 export async function getActivePeople(serverId) {
