@@ -1,9 +1,13 @@
 import { ChannelType } from "discord.js";
 import { schedule } from "node-cron";
-import { addServer, initialiseDatabase } from "./database.js";
+import { addServer, getChannel, initialiseDatabase } from "./database.js";
 import * as commandHandlers from "./commandHandlers.js";
 import { generatePairing } from "./pairing.js";
-import { sendReminder, sendOptoutMessage, requestFeedback } from "./messages.js";
+import {
+  sendReminder,
+  sendOptoutMessage,
+  requestFeedback,
+} from "./messages.js";
 import client, { shutdownBot } from "./bot.js";
 
 import dotenv from "dotenv";
@@ -126,26 +130,32 @@ async function setupCommands(guild) {
   ]);
 }
 
-// When added to a new server, add a 1-1s channel, and save to database
-client.on("guildCreate", async (guild) => {
-  // NOTE if added to a server whilst offline it will not initialise correctly
-  console.log("Added to a new server:", guild.name);
-  try {
-    // Create a category for the 1-1s programme
+async function initializeServer(guild) {
+  const channel = await getChannel(guild.id);
+  if (!channel) {
+    // New server, create channel and add to database
     const category = await guild.channels.create({
       name: "1-1s",
       type: ChannelType.GuildCategory,
     });
-
-    // Create a new text channel with default permissions (no overwrites)
     const channel = await guild.channels.create({
       name: "1-on-1s",
       type: ChannelType.GuildText,
       topic: "A channel for 1-1 pairings.",
       parent: category.id,
     });
-    // Save the server to the database
     await addServer(guild.id, channel.id);
+  }
+  await setupServerJobs(guild.id);
+  await setupCommands(guild);
+}
+
+// When added to a new server, add a 1-1s channel, and save to database
+client.on("guildCreate", async (guild) => {
+  // (hopefully fixed) NOTE if added to a server whilst offline it will not initialise correctly
+  console.log("Added to a new server:", guild.name);
+  try {
+    await initializeServer(guild);
     await setupServerJobs(guild.id);
 
     // Set up commands for the server
@@ -157,10 +167,9 @@ client.on("guildCreate", async (guild) => {
 
 client.once("ready", async () => {
   console.log("Bot is ready.");
-  client.guilds.cache.forEach(async (guild) => {
-    // Cron jobs
-    await setupServerJobs(guild.id);
-  });
+  for (const guild of client.guilds.cache.values()) {
+    await initializeServer(guild);
+  }
   client.user.setActivity("slash commands in the server", {
     type: "LISTENING",
   });
