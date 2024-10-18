@@ -1,6 +1,7 @@
 import { ChannelType } from "discord.js";
 import { schedule } from "node-cron";
-import { addServer, getChannel, initialiseDatabase } from "./database.js";
+import { addServer, findUser, getChannel, initialiseDatabase } from "./database.js";
+import { removeUser } from "./userUtils.js";
 import * as commandHandlers from "./commandHandlers.js";
 import { generatePairing } from "./pairing.js";
 import {
@@ -210,6 +211,17 @@ client.on("interactionCreate", async (interaction) => {
       content: `Unknown command: ${commandName}`,
       ephemeral: true,
     });
+  }
+});
+
+client.on("guildMemberRemove", async (member) => {
+  try {
+    const user = await findUser(member.id, member.guild.id);
+    if (user && user.status === "active") {
+      await removeUser(member.id, member.guild.id);
+    }
+  } catch (err) {
+    console.error(`Error handling member leave: ${err}`);
   }
 });
 
