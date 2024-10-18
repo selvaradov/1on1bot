@@ -151,11 +151,6 @@ const servers = [
     id: "982436897571881061",
     channel: "1221866923701174393",
   },
-  {
-    path: "./root/sparc",
-    id: "1186404061424132168",
-    channel: "1268699299387015270",
-  },
 ];
 
 async function migrateAllServers() {
