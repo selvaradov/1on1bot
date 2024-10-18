@@ -2,7 +2,7 @@
 A discord bot that pairs up users within a server for weekly 1-1 calls. 
 Used by Atlas Fellows and SPARC2024 attendees. 
 ## Installation
-Click [this link](https://discord.com/oauth2/authorize?client_id=1281095060418727979) to add the bot to a server you are an administrator on. It will ask for the following permissions:
+Click [this link](https://discord.com/oauth2/authorize?client_id=1279836130409447486) to add the bot to a server you are an administrator on. It will ask for the following permissions:
 - Manage roles
   - To create a new 1-1 role, and add/remove it from users as they join/leave
 - Manage channels
@@ -27,6 +27,7 @@ Click [this link](https://discord.com/oauth2/authorize?client_id=128109506041872
 10. **/kick:** admin function; remove another user from the 1-1 programme.  
 11. **/optout:** test sending a message 48 hours in advance, which allows users to opt-out for a week by reacting to it.
 12. **/feedback:** test requesting feedback from all paired users about whether their meetings went ahead as scheduled.
+13. **/set-admin-role:** choose an existing role to be the 1-1 admin role, in the case that you want people who aren't server admins to be able to manage the bot. 
 ## FAQ
 #### Q: Do you have any planned updates?
 A: Small group meeting, handling pairing across multiple servers to avoid duplicates, and refactoring code.
