@@ -110,7 +110,7 @@ async function setupCommands(guild) {
       options: [
         {
           name: "tag",
-          description: "Discord tag of the user being kicked, starting with @.",
+          description: "Discord tag or ID of the user to remove",
           type: 3,
           required: true,
         },

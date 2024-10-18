@@ -18,7 +18,11 @@ import {
   getPreviousPairs,
 } from "./database.js";
 import { generatePairing } from "./pairing.js";
-import { requestFeedback, sendOptoutMessage, sendReminder } from "./messages.js";
+import {
+  requestFeedback,
+  sendOptoutMessage,
+  sendReminder,
+} from "./messages.js";
 import { debug } from "./tests.js";
 
 export async function handleJoin(interaction, guild) {
@@ -109,18 +113,46 @@ export async function handleKick(interaction, guild) {
       });
       return;
     }
-    let tag = interaction.options.getString("tag");
-    if (tag.length < 3) {
+
+    let input = interaction.options.getString("tag");
+
+    // Extract user ID from different possible formats
+    let userId;
+    if (input.startsWith("<@") && input.endsWith(">")) {
+      // It's a mention
+      userId = input.substring(2, input.length - 1);
+      // Remove the ! if it's a nickname mention
+      userId = userId.replace("!", "");
+    } else {
+      // Assume it's a raw ID
+      userId = input.trim();
+    }
+
+    // Validate that it looks like a Discord ID
+    if (!/^\d{17,19}$/.test(userId)) {
       await interaction.reply({
-        content: "Invalid tag format.",
+        content:
+          "Invalid user ID format. Please provide either a user mention or a valid Discord user ID (17-19 digits).",
         ephemeral: true,
       });
       return;
     }
-    tag = tag.substring(2, tag.length - 1); // Remove the <@ and > from the tag
-    const role = await getRole(guild, "1-1");
+
+    // First check if user exists in our database
+    const user = await findUser(userId, guild.id);
+    if (user.status === "left") {
+      await interaction.reply({
+        content: "This user is not in the 1-1 programme.",
+        ephemeral: true,
+      });
+      return;
+    }
+
+    // Try to get member, but don't fail if we can't
+    const member = await guild.members.fetch(userId);
+
     await interaction.reply({
-      content: `Are you sure you want to kick <@${tag}> from the 1-1 programme?`,
+      content: `Are you sure you want to remove ${member ? `<@${userId}>` : `user ID ${userId}`} from the 1-1 programme?`,
       ephemeral: true,
       components: [
         {
@@ -149,27 +181,19 @@ export async function handleKick(interaction, guild) {
 
     collector.on("collect", async (i) => {
       if (i.customId === "confirm") {
-        const member = guild.members.cache.get(tag);
-        if (!member) {
-          await i.update({
-            content: `Unable to find <@${tag}> in this server.`,
-            components: [],
-          });
-          return;
+        // Only try to remove role if member is still in server
+        if (member) {
+          const role = await getRole(guild, "1-1");
+          await member.roles.remove(role);
         }
-        const user = await findUser(member.id, guild.id);
-        if (!user) {
-          await i.update({ content: `User not found`, components: [] });
-          return;
-        }
-        await member.roles.remove(role);
-        await removeUser(member.id, guild.id);
+
+        await removeUser(userId, guild.id);
         await i.update({
-          content: `I removed <@${tag}> from the 1-1 programme. I'll retain a list of their recent meetings.`,
+          content: `I removed ${member ? `<@${userId}>` : `user ID ${userId}`} from the 1-1 programme. I'll retain a list of their recent meetings.`,
           components: [],
         });
       } else if (i.customId === "cancel") {
-        await i.update({ content: `Leaving cancelled`, components: [] });
+        await i.update({ content: `Removal cancelled`, components: [] });
       }
       collector.stop();
     });
@@ -277,7 +301,8 @@ export async function handleSetAdminRole(interaction, guild) {
 export async function handleAddPreferredPartner(interaction, guild) {
   if (!(await isActive(interaction.user.id, guild.id))) {
     await interaction.reply({
-      content: "You need to be active in the 1-1 programme to use this command. Please use `/join` first.",
+      content:
+        "You need to be active in the 1-1 programme to use this command. Please use `/join` first.",
       ephemeral: true,
     });
     return;
@@ -329,7 +354,8 @@ export async function handleAddPreferredPartner(interaction, guild) {
 export async function handleAddPreviousPartner(interaction, guild) {
   if (!(await isActive(interaction.user.id, guild.id))) {
     await interaction.reply({
-      content: "You need to be active in the 1-1 programme to use this command. Please use `/join` first.",
+      content:
+        "You need to be active in the 1-1 programme to use this command. Please use `/join` first.",
       ephemeral: true,
     });
     return;
@@ -368,7 +394,8 @@ export async function handleAddPreviousPartner(interaction, guild) {
 export async function handleCheckCurrentPartner(interaction, guild) {
   if (!(await isActive(interaction.user.id, guild.id))) {
     await interaction.reply({
-      content: "You need to be active in the 1-1 programme to use this command. Please use `/join` first.",
+      content:
+        "You need to be active in the 1-1 programme to use this command. Please use `/join` first.",
       ephemeral: true,
     });
     return;
@@ -398,7 +425,8 @@ export async function handleCheckCurrentPartner(interaction, guild) {
 export async function handleCheckPreviousPartners(interaction, guild) {
   if (!(await isActive(interaction.user.id, guild.id))) {
     await interaction.reply({
-      content: "You need to be active in the 1-1 programme to use this command. Please use `/join` first.",
+      content:
+        "You need to be active in the 1-1 programme to use this command. Please use `/join` first.",
       ephemeral: true,
     });
     return;
