@@ -19,9 +19,9 @@ Click [this link](https://discord.com/oauth2/authorize?client_id=127983613040944
 2. **/leave:** remove the user from the 1-1 programme, while retaining a copy of their 10 most recent partners.
 3. **/change-frequency:** change the user's meeting frequency to once every n weeks; default is once every week.
 4. **/add-preferred-partner:** suggest a person the user would like to meet.
-5. **/add-previous-partner:** manually add a person to the user's list of 10 most recent partners; normally done automatically after every meeting.
+5. **/add-previous-partner:** manually add a person to the user's list of previous partners; normally done automatically after every meeting.
 6. **/check-current-partner:** return the user's current partner.
-7. **/check-previous-partners:** return the user's 10 most recent partners.
+7. **/check-previous-partners:** return the user's previous partners.
 8. **/pair:** admin function; manually run the pairing function; normally done automatically every Monday.
 9. **/debug:** admin function; return the values of the programme's arrays.
 10. **/kick:** admin function; remove another user from the 1-1 programme.  
