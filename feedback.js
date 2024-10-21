@@ -2,14 +2,12 @@ import {
   setStatus,
   addPreviousPair,
   getLastNStatusesAbout,
-  getWeek,
   getFeedbackForWeek,
 } from "./database.js";
 import client from "./bot.js";
 
-export async function sendFeedbackDM(userId, partnerId, serverId) {
+export async function sendFeedbackDM(userId, partnerId, serverId, week) {
   try {
-    const week = await getWeek(serverId);
     const user = await client.users.fetch(userId);
     const partner = await client.users.fetch(partnerId);
     const message = await user.send({

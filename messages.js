@@ -4,6 +4,8 @@ import {
   optInAll,
   getChannel,
   updatePersonOptIn,
+  getWeek,
+  getPreviousPairsForWeek,
 } from "./database.js";
 import { sendFeedbackDM } from "./feedback.js";
 
@@ -55,10 +57,17 @@ export async function sendOptoutMessage(serverId) {
 }
 
 export async function requestFeedback(serverId) {
-  const currentPairs = await getCurrentPairs(serverId);
+  const currentWeek = await getWeek(serverId);
+  if (currentWeek === 0) {
+    return;
+  }
+  const previousWeek = currentWeek - 1;
 
-  for (const pair of currentPairs) {
-    await sendFeedbackDM(pair.user1Id, pair.user2Id, serverId);
-    await sendFeedbackDM(pair.user2Id, pair.user1Id, serverId);
+  const previousPairs = await getPreviousPairsForWeek(serverId, previousWeek);
+
+
+  for (const pair of previousPairs) {
+    await sendFeedbackDM(pair.user1Id, pair.user2Id, serverId, previousWeek);
+    await sendFeedbackDM(pair.user2Id, pair.user1Id, serverId, previousWeek);
   }
 }

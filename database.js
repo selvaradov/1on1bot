@@ -288,6 +288,14 @@ export async function getPreviousPairsForUser(userId, serverId) {
   );
 }
 
+export async function getPreviousPairsForWeek(serverId, week) {
+  return await db.all(
+    "SELECT DISTINCT user1Id, user2Id FROM previous_pairs WHERE serverId = ? AND week = ?",
+    serverId,
+    week
+  );
+}
+
 export async function addPreviousPair(
   user1Id,
   user2Id,
