@@ -2,7 +2,7 @@
 A discord bot that pairs up users within a server for weekly 1-1 calls. 
 Used by Atlas Fellows and SPARC2024 attendees. 
 ## Installation
-Click [this link](https://discord.com/oauth2/authorize?client_id=1281095060418727979) to add the bot to a server you are an administrator on. It will ask for the following permissions:
+Click [this link](https://discord.com/oauth2/authorize?client_id=1279836130409447486) to add the bot to a server you are an administrator on. It will ask for the following permissions:
 - Manage roles
   - To create a new 1-1 role, and add/remove it from users as they join/leave
 - Manage channels
@@ -19,14 +19,15 @@ Click [this link](https://discord.com/oauth2/authorize?client_id=128109506041872
 2. **/leave:** remove the user from the 1-1 programme, while retaining a copy of their 10 most recent partners.
 3. **/change-frequency:** change the user's meeting frequency to once every n weeks; default is once every week.
 4. **/add-preferred-partner:** suggest a person the user would like to meet.
-5. **/add-previous-partner:** manually add a person to the user's list of 10 most recent partners; normally done automatically after every meeting.
+5. **/add-previous-partner:** manually add a person to the user's list of previous partners; normally done automatically after every meeting.
 6. **/check-current-partner:** return the user's current partner.
-7. **/check-previous-partners:** return the user's 10 most recent partners.
+7. **/check-previous-partners:** return the user's previous partners.
 8. **/pair:** admin function; manually run the pairing function; normally done automatically every Monday.
 9. **/debug:** admin function; return the values of the programme's arrays.
 10. **/kick:** admin function; remove another user from the 1-1 programme.  
 11. **/optout:** test sending a message 48 hours in advance, which allows users to opt-out for a week by reacting to it.
 12. **/feedback:** test requesting feedback from all paired users about whether their meetings went ahead as scheduled.
+13. **/set-admin-role:** choose an existing role to be the 1-1 admin role, in the case that you want people who aren't server admins to be able to manage the bot. 
 ## FAQ
 #### Q: Do you have any planned updates?
 A: Small group meeting, handling pairing across multiple servers to avoid duplicates, and refactoring code.
