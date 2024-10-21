@@ -147,7 +147,7 @@ async function migrateData(
 
 const servers = [
   {
-    path: "./root/atlas",
+    path: "/root/atlas",
     id: "982436897571881061",
     channel: "1221866923701174393",
   },
