@@ -338,7 +338,6 @@ export async function getLastNStatusesAbout(userId, serverId, n) {
     LIMIT ?
   `, // we're only looking for matches with user2Id because we need feedback given *about* the user
     userId,
-    userId,
     serverId,
     n,
   );
@@ -349,7 +348,9 @@ export async function getFeedbackForWeek(userId, partnerId, serverId, week) {
     `
     SELECT meetingStatus
     FROM previous_pairs
-    WHERE (user1Id = ? AND user2Id = ? OR user1Id = ? AND user2Id = ?) AND serverId = ? AND week = ?
+    WHERE ((user1Id = ? AND user2Id = ?) OR (user1Id = ? AND user2Id = ?))
+    AND serverId = ?
+    AND week = ?
   `,
     userId,
     partnerId,
