@@ -328,6 +328,29 @@ export async function removePreviousPair(user1Id, user2Id, serverId, week) {
   );
 }
 
+export async function updatePreviousPairStatus(
+  user1Id,
+  user2Id,
+  serverId,
+  week,
+  meetingStatus
+) {
+  await db.run(
+    `UPDATE previous_pairs 
+     SET meetingStatus = ?
+     WHERE ((user1Id = ? AND user2Id = ?) OR (user1Id = ? AND user2Id = ?))
+     AND serverId = ? 
+     AND week = ?`,
+    meetingStatus,
+    user1Id,
+    user2Id,
+    user2Id,
+    user1Id,
+    serverId,
+    week
+  );
+}
+
 export async function getLastNStatusesAbout(userId, serverId, n) {
   return await db.all(
     `

@@ -1,6 +1,6 @@
 import {
   setStatus,
-  addPreviousPair,
+  updatePreviousPairStatus,
   getLastNStatusesAbout,
   getFeedbackForWeek,
 } from "./database.js";
@@ -11,7 +11,7 @@ export async function sendFeedbackDM(userId, partnerId, serverId, week) {
     const user = await client.users.fetch(userId);
     const partner = await client.users.fetch(partnerId);
     const message = await user.send({
-      content: `Did your 1:1 meeting with ${partner.username} happen last week?`,
+      content: `Did your 1:1 meeting with ${partner.username} happen last week ${week}?`,
       components: [
         {
           type: 1,
@@ -32,7 +32,7 @@ export async function sendFeedbackDM(userId, partnerId, serverId, week) {
               type: 2,
               style: 4, // Danger
               label: "No, we missed it",
-              custom_id: "missed", // feedback_missed_${serverId}_${week}_${partnerId}
+              custom_id: "missed",
             },
           ],
         },
@@ -70,15 +70,15 @@ async function handleFeedbackResponse(
   status,
   week,
 ) {
-  const currentDate = new Date().toISOString();
   const existingFeedback = await getFeedbackForWeek(userId, partnerId, serverId, week);
+  
   if (existingFeedback) {
-    if (existingFeedback.meetingStatus !== status) {
+    if (existingFeedback.meetingStatus && existingFeedback.meetingStatus !== status) {
       console.error(`Feedback mismatch for week ${week}: ${existingFeedback.meetingStatus} (${partnerId}) vs ${status} (${userId})`);
     }
-    return;
+    // Update the existing record
+    await updatePreviousPairStatus(userId, partnerId, serverId, week, status);
   }
-  await addPreviousPair(userId, partnerId, serverId, currentDate, week, status);
 
   if (status === "missed") {
     const consecutiveMisses = await getConsecutiveMisses(partnerId, serverId);
