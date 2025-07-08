@@ -51,3 +51,10 @@ One problem with this is that two people who set fortnightly frequency and join 
   - I think this is OK to have, but with a bit of effort it can be changed.
 - Also, if a user leaves during the middle of a week, their ex-partner won't be asked to give feedback, since they're no longer in the programme. Again, I think this makes sense.
 - I'm open to modifying the definition of "disengaged", e.g. maybe it should be cumulative not consecutive, maybe three is too low/high, etc.
+
+### Pairing algorithm
+To reduce repeat pairings, the bot scores every possible pair by how long it has
+been since the two users last met. Pairs that have never met get the highest
+score. After handling any preferred pairs, it greedily selects from the highest
+scoring pairs so that people you haven't met in a while are prioritised. Anyone
+left without a partner is kept for the following week.

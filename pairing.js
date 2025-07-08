@@ -68,38 +68,43 @@ export async function generatePairing(serverId) {
       await removePreferredPair(user1, user2, serverId);
     }
   }
-  // pair all the previously unpaired pairs
-  for (const user1 of remainingToPair) {
-    for (const user2 of remainingToPair) {
-      if (
-        user1 !== user2 &&
-        !previousPairs.some(
-          (pair) =>
-            (pair.user1Id === user1 && pair.user2Id === user2) ||
-            (pair.user1Id === user2 && pair.user2Id === user1)
-        )
-      ) {
-        currentPairs.push([user1, user2]);
-        remainingToPair.delete(user1);
-        remainingToPair.delete(user2);
-        break;
-      }
+  // Build a map of when pairs last met
+  const lastMeeting = new Map();
+  for (const pair of previousPairs) {
+    const key = [pair.user1Id, pair.user2Id].sort().join("-");
+    const prev = lastMeeting.get(key);
+    if (!prev || pair.week > prev) {
+      lastMeeting.set(key, pair.week);
     }
-    if (!remainingToPair.has(user1)) break;
   }
 
-  // pair all the remaining pairs
   const remainingUsers = Array.from(remainingToPair);
-  for (let i = 0; i < remainingUsers.length - 1; i += 2) {
-    currentPairs.push([remainingUsers[i], remainingUsers[i + 1]]);
+
+  // Calculate scores for all possible pairs
+  const pairScores = [];
+  for (let i = 0; i < remainingUsers.length; i++) {
+    for (let j = i + 1; j < remainingUsers.length; j++) {
+      const u = remainingUsers[i];
+      const v = remainingUsers[j];
+      const key = [u, v].sort().join("-");
+      const lastWeek = lastMeeting.get(key);
+      const score = lastWeek !== undefined ? week - lastWeek : week + 1000;
+      pairScores.push({ u, v, score });
+    }
   }
 
-  // handle unpaired user - if there is an odd number of users, save the last
-  // (stored as a list in case we introduce option for dispreferred pairs etc)
-  const unpairedUsers =
-    remainingUsers.length % 2 === 1
-      ? [remainingUsers[remainingUsers.length - 1]]
-      : [];
+  // Greedily create pairs with highest score first
+  pairScores.sort((a, b) => b.score - a.score);
+  const pairedUsers = new Set();
+  for (const { u, v } of pairScores) {
+    if (!pairedUsers.has(u) && !pairedUsers.has(v)) {
+      currentPairs.push([u, v]);
+      pairedUsers.add(u);
+      pairedUsers.add(v);
+    }
+  }
+
+  const unpairedUsers = remainingUsers.filter((u) => !pairedUsers.has(u));
 
   // Save current pairs and update previous pairs
   await Promise.all([
