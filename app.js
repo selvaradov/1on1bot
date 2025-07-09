@@ -262,13 +262,13 @@ async function setupServerJobs(serverId) {
     ),
 
     // Weekly feedback collection
-    schedule(
-      "0 12 * * 1",
-      async () => {
-        await requestFeedback(serverId);
-      },
-      { timezone: "UTC" },
-    ),
+    // schedule(
+    //   "0 12 * * 1",
+    //   async () => {
+    //     await requestFeedback(serverId);
+    //   },
+    //   { timezone: "UTC" },
+    // ),
   ];
 
   cronJobs.set(serverId, jobs);
