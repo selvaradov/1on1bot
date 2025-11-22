@@ -26,6 +26,7 @@ export async function sendReminder(serverId) {
 }
 
 export async function sendOptoutMessage(serverId) {
+  console.log(`📨 sendOptoutMessage called for server ${serverId} at ${new Date().toISOString()}`);
   // Opt everybody in initially
   await optInAll(serverId);
   const channelId = await getChannel(serverId);

@@ -230,9 +230,12 @@ const cronJobs = new Map();
 async function setupServerJobs(serverId) {
   // Cancel existing jobs if any
   if (cronJobs.has(serverId)) {
+    console.log(`⚠️  Stopping ${cronJobs.get(serverId).length} existing jobs for server ${serverId}`);
     cronJobs.get(serverId).forEach((job) => job.stop());
+    cronJobs.delete(serverId);
   }
 
+  console.log(`✅ Setting up cron jobs for server ${serverId}`);
   const jobs = [
     // Weekly pairing
     schedule(
