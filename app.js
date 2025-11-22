@@ -157,10 +157,6 @@ client.on("guildCreate", async (guild) => {
   console.log("Added to a new server:", guild.name);
   try {
     await initializeServer(guild);
-    await setupServerJobs(guild.id);
-
-    // Set up commands for the server
-    await setupCommands(guild);
   } catch (err) {
     console.error(`Error initialising bot in new server: ${err}`);
   }
